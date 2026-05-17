@@ -46,12 +46,13 @@ app.get("/weather", async (req, res) => {
 
     const temp = Math.round(data.current.temperature_2m);
     const code = data.current.weather_code;
+    const weatherText = weatherCodeToText(code);
 
     res.json({
       location: "SEOUL",
       temperature: temp,
-      weather: weatherCodeToText(code),
-      label: `SEOUL, ${temp}°C ${weatherCodeToText(code)}`,
+      weather: weatherText,
+      label: `SEOUL, ${temp}°C ${weatherText}`,
     });
   } catch (e) {
     console.error("날씨 오류:", e);
@@ -207,46 +208,9 @@ ${JSON.stringify(closet || [])}
     res.status(500).json({ error: "코디 체크 실패" });
   }
 });
-app.get("/weather", async (req, res) => {
-  try {
-    const url =
-      "https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&timezone=Asia%2FSeoul";
 
-    const response = await fetch(url);
-    const data = await response.json();
+const PORT = process.env.PORT || 3000;
 
-    const temp = Math.round(data.current.temperature_2m);
-    const code = data.current.weather_code;
-
-    function weatherCodeToText(code) {
-      if (code === 0) return "SUNNY";
-      if ([1, 2, 3].includes(code)) return "CLOUDY";
-      if ([45, 48].includes(code)) return "FOGGY";
-      if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "RAINY";
-      if ([71, 73, 75, 85, 86].includes(code)) return "SNOWY";
-      if ([95, 96, 99].includes(code)) return "STORM";
-      return "NICE";
-    }
-
-    const weatherText = weatherCodeToText(code);
-
-    res.json({
-      location: "SEOUL",
-      temperature: temp,
-      weather: weatherText,
-      label: `SEOUL, ${temp}°C ${weatherText}`,
-    });
-  } catch (e) {
-    console.error("날씨 오류:", e);
-    res.json({
-      location: "SEOUL",
-      temperature: 24,
-      weather: "SUNNY",
-      label: "SEOUL, 24°C SUNNY",
-    });
-  }
-});
-
-app.listen(3000, () => {
-  console.log("🔥 AI Closet 서버 실행됨 http://localhost:3000");
+app.listen(PORT, () => {
+  console.log(`서버 실행됨 포트: ${PORT}`);
 });
